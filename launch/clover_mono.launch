@@ -1,19 +1,27 @@
 <launch>
+    <arg name="retransmitted_topic" default="image_transmitted/image_raw"/>
+
+    <node name="image_transport" pkg="image_transport" type="republish" args="compressed in:=main_camera/image_raw out:=$(arg retransmitted_topic)"/>
+
     <node name="orb_slam3_mono" pkg="orb_slam3_ros_wrapper" type="orb_slam3_ros_wrapper_mono" output="screen">
         <!-- for EuRoC dataset -->
-        <remap from="/camera/image_raw" to="/cam0/image_raw"/>
+        <remap from="/camera/image_raw" to="$(arg retransmitted_topic)"/>
 
         <!-- Parameters for original ORB-SLAM3 -->
         <param name="voc_file" type="string" value="$(find orb_slam3_ros_wrapper)/config/ORBvoc.txt" />
-        <param name="settings_file" type="string" value="$(find orb_slam3_ros_wrapper)/config/EuRoC.yaml" />
+        <param name="settings_file" type="string" value="$(find orb_slam3_ros_wrapper)/config/clover_cam.yaml" />
 
         <!-- Parameters for ROS -->
-        <param name="world_frame_id" type="string" value="world" />
+        <param name="world_frame_id" type="string" value="cam_world" />
         <param name="cam_frame_id" type="string" value="camera" />
     </node>
 
     <!-- Visualization - RViz-->
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find orb_slam3_ros_wrapper)/config/orb_slam3_no_imu.rviz" output="screen" />
+
+    <!-- Transform from world to map -->
+    <node pkg="tf2_ros" type="static_transform_publisher" name="cam_world_map_broadcast" args="0 0 0 0.7071068 0.7071068 0 0 map cam_world" />
+    <node pkg="tf2_ros" type="static_transform_publisher" name="camera_orb_position_broadcast" args="0 0 0 0.7071068 0.7071068 0 0 camera orb_position" />
 
     <node pkg="hector_trajectory_server" type="hector_trajectory_server" name="trajectory_server_orb_slam3" output="screen" ns="orb_slam3_ros">
         <param name="/target_frame_name" value="/world" />
@@ -21,4 +29,5 @@
         <param name="/trajectory_update_rate" value="20.0" />
         <param name="/trajectory_publish_rate" value="20.0" />
     </node>
+
 </launch>
