@@ -14,6 +14,8 @@
         <!-- Parameters for ROS -->
         <param name="world_frame_id" type="string" value="cam_world" />
         <param name="cam_frame_id" type="string" value="camera" />
+
+        <param name="~enable_pangolin" value="false"/>
     </node>
 
     <!-- Visualization - RViz-->
@@ -23,11 +25,14 @@
     <node pkg="tf2_ros" type="static_transform_publisher" name="cam_world_map_broadcast" args="0 0 0 0.7071068 0.7071068 0 0 map cam_world" />
     <node pkg="tf2_ros" type="static_transform_publisher" name="camera_orb_position_broadcast" args="0 0 0 0.7071068 0.7071068 0 0 camera orb_position" />
 
-    <node pkg="hector_trajectory_server" type="hector_trajectory_server" name="trajectory_server_orb_slam3" output="screen" ns="orb_slam3_ros">
+    <!-- Send vision pose to flight controller through mavros -->
+    <node name="vpe_publisher" pkg="clover_vpe" type="clover_vpe_node"/>
+
+    <!-- <node pkg="hector_trajectory_server" type="hector_trajectory_server" name="trajectory_server_orb_slam3" output="screen" ns="orb_slam3_ros">
         <param name="/target_frame_name" value="/world" />
         <param name="/source_frame_name" value="/camera" />
         <param name="/trajectory_update_rate" value="20.0" />
         <param name="/trajectory_publish_rate" value="20.0" />
-    </node>
+    </node> -->
 
 </launch>
